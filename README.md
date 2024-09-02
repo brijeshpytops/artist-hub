@@ -49,6 +49,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 ([venv-name]).../artist-hub>>> python manage.py runserver [port-number]
 
 - migrate and makemigrations of database model's
+- Extension for sqlite3: SQLite Viewer - Florian Klampfer
 ([venv-name]).../artist-hub>>> python manage.py makemigrations
 ([venv-name]).../artist-hub>>> python manage.py migrate
 
@@ -63,3 +64,58 @@ This password is too short. It must contain at least 8 characters.
 This password is too common.
 Bypass password validation and create user anyway? [y/N]: y
 Superuser created successfully.
+
+- create django application
+([venv-name]).../artist-hub>>> mkdir [apps-dir-name]
+Example : AHApps
+            - master
+            - web....
+[apps-dir-name]/app1
+[apps-dir-name]/app2
+([venv-name]).../artist-hub>>> python manage.py startapp [app-name] [apps-dir-name]/[app-name]
+
+Go to the project/sttings.py/
+install your app's in settings.py
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    '[apps-dir-name].app1',
+    '[apps-dir-name].app2'
+]
+
+- Setup Templates&Static files
+[apps-dir-name]/app1
+    - templates
+        - app1
+    - static
+        - CSS
+            - styles.css
+        - JS
+            - index.js
+        - Fonts
+            - google-fonts
+        - images
+            - logo.png
+
+- setup STATIC/MEDIA path in settings.py
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+Go to project/urls.py
+from django.conf import settings
+from django.conf.urls.static import static
+
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+([venv-name]).../artist-hub>>> python manage.py collectstatic

@@ -119,3 +119,7 @@ urlpatterns = [
 
 
 ([venv-name]).../artist-hub>>> python manage.py collectstatic
+
+
+Remove something from Git Cache 
+>>> git rm -r --cached path/to/your-directory/

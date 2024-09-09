@@ -2,21 +2,19 @@ from django.shortcuts import render
 from django.http import HttpResponse
 
 # Create your views here.
-def index_view(request):
-    data = {
-        'name': "brijesh gondaliya",
-        'age': 27,
-        'city': "Surat"
-    }
-    return render(request, 'web/index.html', {'data':data})
+def login_view(request):
+    return render(request, r'web\login.html')
 
-def mydata(request):
-    return HttpResponse("This is a my data")
+def register_view(request):
+    return render(request, r'web\register.html')
 
-def mybiodata(request):
-    data = {
-        'name': "brijesh gondaliya",
-        'age': 27,
-        'city': "Surat"
-    }
-    return HttpResponse(data)
+def dashboard_view(request):
+    return render(request, r'web\dashboard.html')
+
+def catalogue_view(request):
+    return render(request, r'web\catalogue.html')
+
+def profile_view(request):
+    return render(request, r'web\profile.html')
+
+

@@ -1,0 +1,55 @@
+{% extends 'web/auth_base.html' %}
+{% load static %}
+{% block title %}
+Register
+{% endblock %}
+
+{% block styles %}
+<style>
+    body {
+        background-color: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+    }
+
+    .registration-container {
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        max-width: 400px;
+        width: 100%;
+    }
+
+    .registration-container h2 {
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block auth %}
+<div class="registration-container">
+    <div class="d-flex justify-content-center">
+        <img src="{% static 'images/logo.png' %}" height="100px" alt="Logo">
+    </div>
+    <h2 class="text-center header-pacifico-regular">Register</h2>
+    <form>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email address</label>
+            <input type="email" class="form-control" id="email" placeholder="Example@gmail.com" required>
+        </div>
+        <div class="mb-3">
+            <label for="mobile" class="form-label">Mobile</label>
+            <input type="text" class="form-control" id="mobile" placeholder="(+91) 765 4567 987" required>
+        </div>
+        <button type="submit" class="btn btn-dark w-100">Register Request</button>
+        <div class="d-flex justify-content-between mt-2">
+            <a href="{% url 'dashboard_view' %}">Dashboard</a>
+            <a href="{% url 'login_view' %}">Login?</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,10 +1,11 @@
 from django.db import models
-from django.contrib.auth.hashers import make_password
-from cryptography.fernet import Fernet
+from django.core.mail import send_mail
+from django.conf import settings
 
 from AHApps.master.models import TimestampModel
 from AHApps.master.utils.UNIQUE.generate_password import create_password
-from AHApps.master.utils.EMAILS.login_credential import send_welcome_email
+
+import os
 
 # Create your models here.
 class Artist(TimestampModel):
@@ -26,11 +27,47 @@ class Artist(TimestampModel):
             self.artist_id = new_artist_id
 
         if not self.password:
-            self.password = make_password(create_password())
+            self.password = create_password()
 
         if self.is_active:
-            send_welcome_email(self.artist_id, self.email, )
-            self.is_active = False
+            subject = "Welcome to Artist Hub! Your Login Credentials Inside"
+            message = f"""
+            Welcome to Our Platform, {self.artist_id}!
 
+            Thank you for joining us. Here are your login credentials:
+            Artist ID: { self.artist_id }
+            Password: { self.password }
+            We recommend changing your password after logging in for the first time.
+
+            Best regards,
+            The Team Artist Hub 
+            """
+            from_email = settings.EMAIL_HOST_USER
+            recipient_list = [f'{self.email}']
+            send_mail(subject, message, from_email, recipient_list)
 
         super(Artist, self).save(*args, **kwargs)
+
+class ArtistProfile(TimestampModel):
+    GENDER_CHOICES = (
+        ('male', "Male"),
+        ('female', "Female"),
+        ('other', "Other"),
+    )
+    artist_id = models.ForeignKey(Artist, on_delete=models.CASCADE)
+    profile = models.ImageField(default="default-images/artist-profile.png")
+    first_name = models.CharField(max_length=255, default='-', blank=True, null=True)
+    last_name = models.CharField(max_length=255, default='-', blank=True, null=True)
+    gender = models.CharField(max_length=255, default="other", choices=GENDER_CHOICES, blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)
+    
+    def save(self, *args, **kwargs):
+        if self.profile:
+            if self.profile.name.startswith('default-images'):
+                new_filename = self.profile.name
+                self.profile.name = os.path.join(new_filename)
+            else:
+                base, ext = os.path.splitext(self.profile.name)
+                new_filename = f"{self.artist_id.artist_id}_profile{ext}"
+                self.profile.name = os.path.join('artist_profiles/', new_filename)
+        super(ArtistProfile, self).save(*args, **kwargs)

@@ -29,7 +29,7 @@
 
 <body>
     <div class="container">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark rounded">
             <div class="container-fluid">
                 <a class="navbar-brand" href="{% url 'dashboard_view' %}"><img src="{% static 'images/logo.png' %}" height="80px"
                         class="bg-white rounded" alt="Logo"></a>
@@ -51,12 +51,12 @@
                         <li class="nav-item dropdown ">
                             <a class="nav-link dropdown-toggle me-5" href="#" id="navbarDropdownMenuLink" role="button"
                                 data-bs-toggle="dropdown" aria-expanded="false">
-                                Brijesh Gondaliya
+                                {{request.session.artist_id}}
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                                 <li><a class="dropdown-item text-dark" href="{% url 'profile_view' %}"><i class="bi bi-person-circle"></i> Profile settings</a></li>
                                 <li><a class="dropdown-item text-dark" href="#"><i class="bi bi-lock"></i> Forgot password?</a></li>
-                                <li><a class="dropdown-item text-dark" href="#"><i class="bi bi-box-arrow-left"></i> Logout</a></li>
+                                <li><a class="dropdown-item text-dark" href="{% url 'logout' %}"><i class="bi bi-box-arrow-left"></i> Logout</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -65,7 +65,22 @@
         </nav>
     </div>
 
-    <div class="container">
+    
+
+        <div class="container">
+        <!-- start message section -->
+        {% if messages %}
+        <!-- <div class="container-fluid"> -->
+        {% for message in messages %}
+        <div class="alert alert-dismissible fade show {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% elif message.tags == 'success' %}alert-success{% elif message.tags == 'info' %}alert-info{% endif %}"
+            role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+        <!-- </div> -->
+        {% endif %}
+        <!-- end message section -->
         {% block web %}
         {% endblock %}
     </div>

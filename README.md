@@ -123,3 +123,15 @@ urlpatterns = [
 
 Remove something from Git Cache 
 >>> git rm -r --cached path/to/your-directory/
+
+
+Form setup: 
+
+1] form tag inside attribute must be:
+action="" method="post" enctype="multipart/form-data"[if file field is there]
+
+2] {% csrf_token %}
+
+3] inside input field must be required "name" attribute
+
+4] btn type must be submit

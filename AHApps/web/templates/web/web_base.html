@@ -51,7 +51,8 @@
                         <li class="nav-item dropdown ">
                             <a class="nav-link dropdown-toggle me-5" href="#" id="navbarDropdownMenuLink" role="button"
                                 data-bs-toggle="dropdown" aria-expanded="false">
-                                {{request.session.artist_id}}
+                                <img src="{{request.session.artist_profile_image}}" height="35px" style="border-radius: 50%;" class="profile-image img-circle">
+                                {{request.session.artist_id}} 
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                                 <li><a class="dropdown-item text-dark" href="{% url 'profile_view' %}"><i class="bi bi-person-circle"></i> Profile settings</a></li>

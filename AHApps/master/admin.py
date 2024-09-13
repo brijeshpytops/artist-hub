@@ -4,3 +4,7 @@ from django.contrib.auth.models import Group, User
 
 admin.site.unregister(Group)
 admin.site.unregister(User)
+
+admin.site.site_header = 'ARTIST HUB'                    
+admin.site.index_title = 'Artist dashboard'                 
+admin.site.site_title = 'ARTIST HUB ADMIN PANEL' 

@@ -1,5 +1,8 @@
 from django.shortcuts import render, redirect
+from django.http import JsonResponse
 from django.contrib import messages
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.dateparse import parse_date
 
 from functools import wraps
 
@@ -27,19 +30,22 @@ def login_view(request):
 
         try:
             check_artist = Artist.objects.get(artist_id=artist_id_)
+            get_artist_profile = ArtistProfile.objects.get(artist_id_id=check_artist.artist_id)
         except Artist.DoesNotExist:
-            messages.error(request, "Artist ID and password doesn't match.")
+            messages.error(request, "Artist ID and password don't match.")
             return redirect('login_view')
         else:
             if check_artist.password == password_:
                 request.session['artist_id'] = check_artist.artist_id
-                messages.success(request, "Now, You are logged In.")
+                # Store only the URL of the profile image, not the whole object
+                request.session['artist_profile_image'] = get_artist_profile.profile.url if get_artist_profile.profile else None
+                messages.success(request, "Now, you are logged in.")
                 return redirect('dashboard_view')
             else:
-                messages.error(request, "Artist ID and password doesn't match.")
+                messages.error(request, "Artist ID and password don't match.")
                 return redirect('login_view')
 
-    return render(request, r'web\login.html')
+    return render(request, 'web/login.html')
 
 @login_required
 def logout(request):
@@ -71,5 +77,53 @@ def profile_view(request):
         'profile':artist_profile
     }
     return render(request, r'web\profile.html', context)
+
+@login_required
+def profile_update(request):
+    if request.method == 'POST':
+        mobile_ = request.POST['mobile']
+        profile_ = request.FILES['profile']
+        first_name_ = request.POST['first_name']
+        last_name_ = request.POST['last_name']
+        gender_ = request.POST['gender']
+
+        artist_id_ = request.session['artist_id']
+        artist = Artist.objects.get(artist_id=artist_id_)
+        artist_profile = ArtistProfile.objects.get(artist_id_id=artist_id_)
+
+        artist_profile.profile = profile_
+        artist_profile.first_name = first_name_
+        artist_profile.last_name = last_name_
+        artist_profile.gender = gender_
+        artist.mobile = mobile_
+
+
+        artist.save()
+        artist_profile.save()
+
+        print(artist_profile.profile.url)
+        request.session['artist_profile_image'] = artist_profile.profile.url if artist_profile.profile else None
+        messages.success(request, 'Profile data updated successfully done.')
+        return redirect('profile_view')
+    
+
+@csrf_exempt
+@login_required
+def update_date_of_birth(request):
+    if request.method == 'POST':
+        import json
+        data = json.loads(request.body)
+        date_of_birth = data.get('date_of_birth')
+
+        if date_of_birth:
+            artist_id_ = request.session['artist_id']
+            profile, created = ArtistProfile.objects.get_or_create(artist_id_id=artist_id_)
+            profile.date_of_birth = parse_date(date_of_birth)
+            profile.save()
+            return JsonResponse({'success': True})
+
+    return JsonResponse({'success': False}, status=400)
+
+
 
 

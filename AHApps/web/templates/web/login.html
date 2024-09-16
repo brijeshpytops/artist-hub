@@ -63,7 +63,7 @@ Login
         </div>
         <button type="submit" class="btn btn-dark w-100">Login</button>
         <div class="d-flex justify-content-between mt-2">
-            <a href="#">Forgot password?</a>
+            <a href="{% url 'forgot_password_view' %}">Forgot password?</a>
             <a href="{% url 'register_view' %}">New user?</a>
         </div>
     </form>

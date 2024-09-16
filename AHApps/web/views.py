@@ -3,10 +3,13 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.dateparse import parse_date
+from django.conf import settings
+from django.core.mail import send_mail
 
 from functools import wraps
 
 from AHApps.artist.models import Artist, ArtistProfile
+from AHApps.master.utils.UNIQUE.generate_otp import create_otp
 
 # Create your views here.
 
@@ -22,6 +25,20 @@ def login_required(view_func):
         return view_func(request, *args, **kwargs)
     return _wrapped_view
 
+def register_view(request):
+    if request.method == 'POST':
+        email_ = request.POST['email']
+        mobile_ = request.POST['mobile']
+
+        new_artist = Artist.objects.create(
+            email=email_,
+            mobile=mobile_
+        )
+        new_artist.save()
+        messages.success(request, 'Your request has been successfuly submited.')
+        return redirect('login_view')
+    return render(request, r'web\register.html')
+
 
 def login_view(request):
     if request.method == 'POST':
@@ -31,6 +48,11 @@ def login_view(request):
         try:
             check_artist = Artist.objects.get(artist_id=artist_id_)
             get_artist_profile = ArtistProfile.objects.get(artist_id_id=check_artist.artist_id)
+
+            if not check_artist.is_active:
+                messages.warning(request, "Your account is deactive.")
+                return redirect('login_view')
+
         except Artist.DoesNotExist:
             messages.error(request, "Artist ID and password don't match.")
             return redirect('login_view')
@@ -57,8 +79,84 @@ def logout(request):
         messages.error(request, 'You are not logged In yet.')
         return redirect('login_view')
     
-def register_view(request):
-    return render(request, r'web\register.html')
+    
+    
+def forgot_password_view(request):
+    if request.method == 'POST':
+        email_ = request.POST['email']
+        try:
+            check_artist = Artist.objects.get(email=email_)
+            if not check_artist.is_active:
+                messages.warning(request, "Your account is deactive.")
+                return redirect('login_view')
+        except Artist.DoesNotExist:
+            messages.warning(request, f"{email_} is not exist in our database.")
+            return redirect('forgot_password_view')
+        else:
+            otp_ = create_otp()
+            check_artist.otp = otp_
+            check_artist.save()
+            subject = "Password Reset Request | ARTIST HUB"
+            message = f"""
+            Dear {check_artist.artist_id},
+
+            We received a request to reset your password. Please use the OTP below to complete the process:
+
+            OTP: {otp_}
+
+            This OTP is valid for a short period of time and will expire soon. If you did not request a password reset, please ignore this email.
+
+            To reset your password, please follow the instructions on our website. If you encounter any issues, contact our support team.
+
+            Best regards,
+            The Team
+            """
+            from_email = settings.EMAIL_HOST_USER
+            recipient_list = [f'{email_}']
+        
+            send_mail(subject, message, from_email, recipient_list)
+            messages.success(request, 'Please check your mail.')
+            context = {
+                'email': email_
+            }
+            return render(request, 'web\otp-verify.html', context)
+    return render(request, r'web\forgot-password.html')
+    
+def password_reset_request(request):
+    if request.method == 'POST':
+        email_ = request.POST['email']
+        otp_ = request.POST['otp']
+        new_password_ = request.POST['new_password']
+        confirm_password_ = request.POST['confirm_password']
+
+        try:
+            check_artist = Artist.objects.get(email=email_)
+            if not check_artist.is_active:
+                messages.warning(request, "Your account is deactive.")
+                return redirect('login_view')
+        except Artist.DoesNotExist:
+            messages.warning(request, f"{email_} is not exist in our database.")
+            return redirect('forgot_password_view')
+        else:
+            if check_artist.otp == otp_:
+                if new_password_ == confirm_password_:
+                    check_artist.password = new_password_
+                    check_artist.save()
+                    messages.success(request, "Password changed successfully.")
+                    return redirect('login_view')
+                else:
+                    messages.error(request, 'new password and confirm password does not match')
+                    context = {
+                        'email': email_
+                    }
+                    return render(request, 'web\otp-verify.html', context)
+            else:
+                messages.error(request, 'Invalid OTP!!!')
+                context = {
+                    'email': email_
+                }
+                return render(request, 'web\otp-verify.html', context)
+    return render(request, 'web\otp-verify.html')
 
 @login_required
 def dashboard_view(request):

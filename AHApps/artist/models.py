@@ -4,6 +4,7 @@ from django.conf import settings
 
 from AHApps.master.models import TimestampModel
 from AHApps.master.utils.UNIQUE.generate_password import create_password
+from AHApps.master.utils.UNIQUE.generate_primary_key import create_primary_key
 
 import os
 
@@ -13,6 +14,7 @@ class Artist(TimestampModel):
     email = models.EmailField(max_length=255, unique=True, null=False, blank=False)
     mobile = models.CharField(max_length=255, unique=True, null=False, blank=False)
     password = models.CharField(max_length=255, blank=True)
+    otp = models.CharField(max_length=255, default='545663')
     is_active = models.BooleanField(default=False)
 
 
@@ -48,6 +50,12 @@ class Artist(TimestampModel):
 
         super(Artist, self).save(*args, **kwargs)
 
+
+        # Create ArtistProfile if not exists
+        if not hasattr(self, 'artistprofile'):
+            ArtistProfile.objects.get_or_create(artist_id=self)
+
+
 class ArtistProfile(TimestampModel):
     GENDER_CHOICES = (
         ('male', "Male"),
@@ -71,3 +79,39 @@ class ArtistProfile(TimestampModel):
                 new_filename = f"{self.artist_id.artist_id}_profile{ext}"
                 self.profile.name = os.path.join('artist_profiles/', new_filename)
         super(ArtistProfile, self).save(*args, **kwargs)
+
+
+class ArtistCatalogueCategory(TimestampModel):
+    name = models.CharField(max_length=255, blank=False, null=False)
+
+    def __str__(self):
+        return self.name
+
+
+class ArtistCatalogue(TimestampModel):
+    POST_FIX = 'catalogue'
+    artist_catalogue_id = models.CharField(primary_key=True, blank=True, max_length=255)
+    artist_id = models.ForeignKey(Artist, on_delete=models.CASCADE)
+    categories = models.ManyToManyField(ArtistCatalogueCategory, related_name='catalogues')
+    catalogue_image = models.ImageField(default="default-images/default-catalogue-image.png")
+    title = models.CharField(max_length=255, blank=False, null=False)
+    content = models.TextField()
+
+    def __str__(self):
+        return f'{self.title} by {self.artist_id}'
+    
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.artist_catalogue_id = create_primary_key(self.POST_FIX)
+
+        if self.catalogue_image:
+            if self.catalogue_image.name.startswith('default-images'):
+                new_filename = self.catalogue_image.name
+                self.catalogue_image.name = os.path.join(new_filename)
+            else:
+                base, ext = os.path.splitext(self.catalogue_image.name)
+                new_filename = f"{self.artist_catalogue_id}_image{ext}"
+                self.catalogue_image.name = os.path.join('artist_catalogue_images/', new_filename)
+        super(ArtistCatalogue, self).save(*args, **kwargs)
+
+

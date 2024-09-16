@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Artist, ArtistProfile
+from .models import Artist, ArtistProfile, ArtistCatalogueCategory, ArtistCatalogue
 # Register your models here.
 
 class ArtistAdmin(admin.ModelAdmin):
@@ -12,3 +12,6 @@ class ArtistProfileAdmin(admin.ModelAdmin):
     list_filter = ['gender']
     list_per_page = 10
 admin.site.register(ArtistProfile, ArtistProfileAdmin)
+
+admin.site.register(ArtistCatalogueCategory)
+admin.site.register(ArtistCatalogue)

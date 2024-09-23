@@ -175,34 +175,43 @@ def profile_view(request):
         'profile':artist_profile
     }
     return render(request, r'web\profile.html', context)
-
 @login_required
 def profile_update(request):
     if request.method == 'POST':
-        mobile_ = request.POST['mobile']
-        profile_ = request.FILES['profile']
-        first_name_ = request.POST['first_name']
-        last_name_ = request.POST['last_name']
-        gender_ = request.POST['gender']
+        mobile_ = request.POST.get('mobile')
+        first_name_ = request.POST.get('first_name')
+        last_name_ = request.POST.get('last_name')
+        gender_ = request.POST.get('gender')
 
         artist_id_ = request.session['artist_id']
         artist = Artist.objects.get(artist_id=artist_id_)
         artist_profile = ArtistProfile.objects.get(artist_id_id=artist_id_)
 
-        artist_profile.profile = profile_
+        # Only update the profile image if a new file is uploaded
+        if 'profile' in request.FILES:
+            profile_ = request.FILES['profile']
+            artist_profile.profile = profile_  # Update with new file
+        # Else, keep the existing profile image unchanged
+
+        # Update the other fields
         artist_profile.first_name = first_name_
         artist_profile.last_name = last_name_
         artist_profile.gender = gender_
         artist.mobile = mobile_
 
-
         artist.save()
         artist_profile.save()
 
-        print(artist_profile.profile.url)
-        request.session['artist_profile_image'] = artist_profile.profile.url if artist_profile.profile else None
-        messages.success(request, 'Profile data updated successfully done.')
+        # Update the session with the new profile image URL if updated
+        if artist_profile.profile:
+            request.session['artist_profile_image'] = artist_profile.profile.url
+
+        messages.success(request, 'Profile data updated successfully.')
         return redirect('profile_view')
+    
+    # In case of GET requests or other methods, handle accordingly
+    return render(request, 'profile_update.html')
+
     
 
 @csrf_exempt

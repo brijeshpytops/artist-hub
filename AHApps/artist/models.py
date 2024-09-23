@@ -70,7 +70,14 @@ class ArtistProfile(TimestampModel):
     date_of_birth = models.DateField(blank=True, null=True)
     
     def save(self, *args, **kwargs):
-        if self.profile:
+        # Fetch the current object from the database to compare
+        try:
+            existing_profile = ArtistProfile.objects.get(pk=self.pk)
+        except ArtistProfile.DoesNotExist:
+            existing_profile = None
+
+        # Only update the image name if a new image is uploaded
+        if self.profile and (not existing_profile or existing_profile.profile != self.profile):
             if self.profile.name.startswith('default-images'):
                 new_filename = self.profile.name
                 self.profile.name = os.path.join(new_filename)
@@ -78,6 +85,7 @@ class ArtistProfile(TimestampModel):
                 base, ext = os.path.splitext(self.profile.name)
                 new_filename = f"{self.artist_id.artist_id}_profile{ext}"
                 self.profile.name = os.path.join('artist_profiles/', new_filename)
+        
         super(ArtistProfile, self).save(*args, **kwargs)
 
 

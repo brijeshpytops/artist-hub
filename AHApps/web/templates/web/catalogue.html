@@ -5,6 +5,22 @@ Catalogue
 {% endblock %}
 
 {% block styles %}
+<style>
+     .card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .card-img-top {
+        height: 200px; /* Set a fixed height for the images */
+        object-fit: cover; /* Ensure the image covers the area without distortion */
+    }
+
+    .card-body {
+        flex-grow: 1;  /* This makes the card body take up all available space */
+    }
+</style>
 {% endblock %}
 
 {% block web %}
@@ -30,20 +46,21 @@ Catalogue
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="image" class="form-label">Catalogue image</label>
-                        <input type="file" class="form-control" id="image"
+                        <input type="file" class="form-control" id="image" name="image"
                             placeholder="catalogue image...">
                     </div>
                     <div class="mb-3">
                         <label for="catalogue_category" class="form-label">Category</label>
-                        <select name="" id="" class="form-select" multiple>
+                        <select id="catalogue_category" class="form-select" name="categories" multiple>
                             <option value="" selected disabled>Choose catalogue category</option>
-                            <option value="">Shape</option>
-                            <option value="">Color</option>
+                            {% for Category in ArtistCatalogueCategory %}
+                                <option value="{{ Category.id }}">{{ Category.name }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                     <div class="mb-3">
                         <label for="title" class="form-label">Title</label>
-                        <input type="text" class="form-control" id="title"
+                        <input type="text" name="title" class="form-control" id="title"
                             placeholder="catalogue title...">
                     </div>
                     <div class="mb-3">
@@ -58,5 +75,43 @@ Catalogue
             </form>
         </div>
     </div>
+</div>
+
+
+<div class="container mt-5"></div>
+    <h1>Catalog for {{ artist.artist_id }}</h1>
+    
+    <div class="row">
+        {% for catalog in catalogs %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <!-- Display the catalog image -->
+                <img src="{{ catalog.catalogue_image.url }}" class="card-img-top" alt="{{ catalog.title }}">
+                
+                <div class="card-body">
+                    <h5 class="card-title">{{ catalog.title }}</h5>
+                    <p class="card-text">{{ catalog.content|truncatewords:20 }}</p>
+                    
+                    <!-- Display categories -->
+                    <p><strong>Categories:</strong> 
+                        {% for category in catalog.categories.all %}
+                            <span class="badge bg-info text-dark">{{ category.name }}</span>
+                        {% empty %}
+                            <span class="badge bg-warning text-dark">No Categories</span>
+                        {% endfor %}
+                    </p>
+                    
+                    <a href="#" class="btn alert-warning">Read More</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="alert alert-warning" role="alert">
+            No catalogs available for this artist.
+        </div>
+        {% endfor %}
+    </div>
+    
+    
 </div>
 {% endblock %}

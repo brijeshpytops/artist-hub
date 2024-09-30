@@ -12,5 +12,6 @@ urlpatterns = [
     path('profile/', profile_view, name='profile_view'),
     path('profile-update/', profile_update, name='profile_update'),
     path('update-date-of-birth/', update_date_of_birth, name='update_date_of_birth'),
+    path('weather_data/', weather_data, name='weather_data'),
     
 ]

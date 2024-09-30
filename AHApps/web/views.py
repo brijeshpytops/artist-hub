@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
@@ -8,8 +8,10 @@ from django.core.mail import send_mail
 
 from functools import wraps
 
-from AHApps.artist.models import Artist, ArtistProfile
+from AHApps.artist.models import Artist, ArtistProfile, ArtistCatalogue, ArtistCatalogueCategory
 from AHApps.master.utils.UNIQUE.generate_otp import create_otp
+
+import requests
 
 # Create your views here.
 
@@ -162,9 +164,50 @@ def password_reset_request(request):
 def dashboard_view(request):
     return render(request, r'web\dashboard.html')
 
-@login_required
+
 def catalogue_view(request):
-    return render(request, r'web\catalogue.html')
+
+    if request.method == 'POST':
+        image_ = request.FILES.get('image')
+        categories_ = request.POST.getlist('categories')
+        title_ = request.POST['title']
+        content_ = request.POST['content']
+        
+        # Get the artist by artist_id from the session
+        artist_id = request.session['artist_id']
+        artist = get_object_or_404(Artist, artist_id=artist_id)
+        
+        # Create and save the new ArtistCatalogue entry
+        catalog = ArtistCatalogue.objects.create(
+            artist_id=artist,  
+            title=title_,
+            content=content_,
+            catalogue_image=image_,
+        )
+        
+        # Assign the selected categories to the catalog
+        catalog.categories.set(categories_)
+        return redirect('catalogue_view')
+
+
+    artist_id = request.session['artist_id']
+    # Get the artist by artist_id
+    artist = get_object_or_404(Artist, artist_id=artist_id)
+    
+    # Get all catalog entries for this artist
+    artist_catalogs = ArtistCatalogue.objects.filter(artist_id=artist).prefetch_related('categories')
+    
+    # Context to pass to the template
+    context = {
+        'artist': artist,
+        'catalogs': artist_catalogs,
+        'ArtistCatalogueCategory': ArtistCatalogueCategory.objects.all()
+    }
+    
+    # Render the template
+    return render(request, r'web\catalogue.html', context)
+
+
 @login_required
 def profile_view(request):
     artist_id = request.session['artist_id']
@@ -230,6 +273,26 @@ def update_date_of_birth(request):
             return JsonResponse({'success': True})
 
     return JsonResponse({'success': False}, status=400)
+
+@login_required
+def weather_data(request):
+    if request.method == 'POST':
+        city_name = request.POST['city_name']
+        api_key = '36fcf9db8e9fc52eb51ffdd4796e3b18'
+        url = f'https://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={api_key}'
+        res = requests.get(url)
+        if res.status_code == 200:
+            data = res.json()
+        else:
+            data = {}
+            
+        context = {
+            'data':data
+        }
+        print(context)
+        return render(request, r'web/weather_api.html', context)
+    return render(request, r'web/weather_api.html')
+
 
 
 

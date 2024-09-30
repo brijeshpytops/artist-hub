@@ -1,0 +1,77 @@
+{% extends 'web\web_base.html' %}
+{% load static %}
+{% block title %}
+weather
+{% endblock %}
+
+{% block styles %}
+<style>
+    .weather-card {
+            background-color: #3a4140;
+            border-radius: 10px;
+            padding: 20px;
+            color: white;
+        }
+        .weather-icon {
+            width: 80px;
+        }
+</style>
+{% endblock %}
+
+{% block web %}
+<div class="row d-flex justify-content-center">
+    <form action="" method="post">
+        {% csrf_token %}
+        <div class="col-lg-12 my-3">
+            <div class="mb-3">
+                <label for="">Enter city name: </label>
+                <input type="text" name="city_name" placeholder="London" class="form-control">
+            </div>
+            <div class="mb-3">
+                <button type="submit" class="btn btn-dark">Get weather</button>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row justify-content-center">
+    <div class="col-lg-12">
+        {% if data %}
+        <div class="weather-card p-4">
+            <div class="d-flex justify-content-between">
+                <h2>{{ data.name }}, {{ data.sys.country }}</h2>
+                <img src="http://openweathermap.org/img/wn/{{ data.weather.0.icon }}@2x.png" alt="{{ data.weather.0.description }}" class="weather-icon bg-secondary rounded">
+            </div>
+            <h4>{{ data.weather.0.main }} - {{ data.weather.0.description }}</h4>
+
+            <div class="mt-3">
+                <h3 class="fw-bold">{{ data.main.temp|floatformat:2 }} K</h3>
+                <p>Feels like: {{ data.main.feels_like|floatformat:2 }} K</p>
+                <p>Min: {{ data.main.temp_min|floatformat:2 }} K | Max: {{ data.main.temp_max|floatformat:2 }} K</p>
+                <p>Pressure: {{ data.main.pressure }} hPa | Humidity: {{ data.main.humidity }}%</p>
+            </div>
+
+            <div class="mt-4">
+                <h5>Wind</h5>
+                <p>Speed: {{ data.wind.speed }} m/s | Gust: {{ data.wind.gust }} m/s | Direction: {{ data.wind.deg }}°</p>
+            </div>
+
+            <div class="mt-4">
+                <h5>Clouds</h5>
+                <p>Cloudiness: {{ data.clouds.all }}%</p>
+            </div>
+
+            <div class="mt-4">
+                <h5>Visibility</h5>
+                <p>{{ data.visibility }} meters</p>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-warning">
+            No weather data available.
+        </div>
+        {% endif %}
+    </div>
+</div>
+</div>
+
+{% endblock %}

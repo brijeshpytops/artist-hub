@@ -162,7 +162,18 @@ def password_reset_request(request):
 
 @login_required
 def dashboard_view(request):
-    return render(request, r'web\dashboard.html')
+    artist_id = request.session['artist_id']
+    # Get the artist by artist_id
+    artist = get_object_or_404(Artist, artist_id=artist_id)
+    
+    # Get all catalog entries for this artist
+    artist_catalogs = ArtistCatalogue.objects.filter(artist_id=artist).prefetch_related('categories').order_by('-created_at')[:5]
+
+    context = {
+        'catalogs': artist_catalogs,
+        'total_catalogs': artist_catalogs.count()
+    }
+    return render(request, r'web\dashboard.html',context)
 
 
 def catalogue_view(request):
@@ -206,6 +217,15 @@ def catalogue_view(request):
     
     # Render the template
     return render(request, r'web\catalogue.html', context)
+
+def catalogue_details(request, catalogue_id):
+    artist_catalogs = ArtistCatalogue.objects.filter(artist_catalogue_id=catalogue_id).prefetch_related('categories').first()
+
+    context = {
+        'catalog': artist_catalogs
+    }
+    print(context)
+    return render(request, r"web/catalogue_details.html", context)
 
 
 @login_required

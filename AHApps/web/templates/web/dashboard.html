@@ -8,5 +8,88 @@ Dashboard
 {% endblock %}
 
 {% block web %}
-dashboard
+<div class="row mt-3 text-center" style="row-gap: 20px;">
+    <div class="col-lg-3">
+        <div class="card border">
+            <div class="title ">
+                <h3 class="lead fs-3 shadow-sm py-3">Catelogue</h3>
+            </div>
+            <div class="main">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span><strong>Total catalogue</strong></span>
+                        <span class="badge bg-dark">{{total_catalogs}}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="card border">
+            <div class="title ">
+                <h3 class="lead fs-3 shadow-sm py-3">Events</h3>
+            </div>
+            <div class="main">
+                <ul class="list-group list-group-flush">
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="card border">
+            <div class="title ">
+                <h3 class="lead fs-3 shadow-sm py-3">Tasks</h3>
+            </div>
+            <div class="main">
+                <ul class="list-group list-group-flush">
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="card border">
+            <div class="title ">
+                <h3 class="lead fs-3 shadow-sm py-3">Appoinments</h3>
+            </div>
+            <div class="main">
+                <ul class="list-group list-group-flush">
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card border">
+            <div class="title ">
+                <h3 class="lead fs-3 shadow-sm py-3">catagory</h3>
+            </div>
+            <div class="main" style="overflow-y: scroll; text-align: start; max-height: 300px;">
+                <ul class="list-group list-group-flush p-3">
+                    Lorem ipsum, dolor sit amet consectetur adipisicing elit. Pariatur, numquam corrupti? Consequatur voluptate, officia, quod culpa nostrum ad praesentium dolorem velit sint ipsa quos minima non deserunt eaque laudantium inventore dignissimos. Rem, in voluptatum vel laborum est nemo! Consequatur saepe maxime reiciendis natus repellendus nulla quidem ipsam repellat commodi rem quam, molestias quis accusamus sint ullam cum eaque porro nemo. Explicabo, dicta quo voluptatem repellat deserunt ipsam nihil qui laboriosam cumque? Accusamus accusantium quos rem ab eius facere blanditiis corporis, nisi repudiandae quibusdam perspiciatis exercitationem, at deleniti magnam. Optio numquam porro non omnis. Nisi sint quis nihil atque nam mollitia! Lorem ipsum dolor sit, amet consectetur adipisicing elit. Voluptas est quis in ipsam! Quam exercitationem velit ducimus debitis, reprehenderit hic?
+
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card border">
+            <div class="title ">
+                <h3 class="lead fs-3 shadow-sm py-3">Latest catalogue</h3>
+            </div>
+            <div class="main" style="overflow-y: scroll; text-align: start; max-height: 300px;">
+                <ul class="list-group">
+                    {% for catalog in catalogs %}
+                        <li class="list-group-item">
+                            <img src="{{ catalog.catalogue_image.url }}" class="card-img-top" alt="{{ catalog.title }}" style="height: 50px; width: 50px;">
+                            {{ forloop.counter }} ] - 
+                            <a href="{% url 'catalogue_details' catalogue_id=catalog.artist_catalogue_id %}">{{ catalog.title }} </a><br> {{catalog.created_at}}
+                        </li>
+                    {% endfor %}
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

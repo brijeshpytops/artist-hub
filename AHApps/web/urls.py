@@ -9,6 +9,7 @@ urlpatterns = [
     path('password-reset-request/', password_reset_request, name='password_reset_request'),
     path('dashboard/', dashboard_view, name='dashboard_view'),
     path('catalogue/', catalogue_view, name='catalogue_view'),
+    path('catalogue-details/<str:catalogue_id>', catalogue_details, name="catalogue_details"),
     path('profile/', profile_view, name='profile_view'),
     path('profile-update/', profile_update, name='profile_update'),
     path('update-date-of-birth/', update_date_of_birth, name='update_date_of_birth'),

@@ -101,7 +101,7 @@ Catalogue
                         {% endfor %}
                     </p>
                     
-                    <a href="#" class="btn alert-warning">Read More</a>
+                    <a href="{% url 'catalogue_details' catalogue_id=catalog.artist_catalogue_id %}" class="btn alert-warning">Read More</a>
                 </div>
             </div>
         </div>

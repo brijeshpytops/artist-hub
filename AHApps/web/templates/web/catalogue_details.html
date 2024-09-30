@@ -1,0 +1,14 @@
+{% extends 'web\web_base.html' %}
+{% load static %}
+{% block title %}
+Dashboard
+{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block web %}
+<img src="{{ catalog.catalogue_image.url }}" class="card-img-top" alt="{{ catalog.title }}">
+{{catalog.title}}
+{{catalog.artist_catalogue_id}}
+{% endblock %}
